@@ -29,6 +29,8 @@ def scrape_sports_reference(url):
 
     # pd.set_option('display.max_columns', None)
     # print(df.head())
+    df = df[df['School'] != 'School']
+    df.dropna(subset='School', inplace=True)
     return df
 
 def dedupe_columns(cols):
@@ -112,6 +114,8 @@ def scrape_kenpom_year(year):
 
     for col in numeric_cols:
         df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    df.dropna(subset=['Team'], inplace=True)
 
     return df[
         [
