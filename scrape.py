@@ -4,6 +4,7 @@ import pandas as pd
 from io import StringIO
 from collections import defaultdict
 from time import sleep
+import name_standardizer
 
 def scrape_sports_reference(url):
     response = requests.get(url)
@@ -47,6 +48,8 @@ def dedupe_columns(cols):
     return new_cols
 
 def scrape_kenpom_year(year):
+    name_dict = name_standardizer.KENPOM_TO_SPORTSREF
+
     url = f"https://kenpom.com/index.php?y={year}"
     response = requests.get(
         url,
@@ -116,6 +119,8 @@ def scrape_kenpom_year(year):
         df[col] = pd.to_numeric(df[col], errors='coerce')
 
     df.dropna(subset=['Team'], inplace=True)
+    df['Team'] = df['Team'].apply(name_standardizer.normalize_team_name)
+    df['Team'] = df['Team'].replace(name_dict)
 
     return df[
         [
@@ -152,13 +157,26 @@ if __name__ == "__main__":
     combined_kenpom_data.to_csv("Data/kenpom_data.csv", index=False)
     print("Data scraping complete")
 
-    print("Joining datasets")
-    merged = pd.merge(
-        combined_sports_reference_data,
-        combined_kenpom_data,
-        left_on=['School', 'Year'],
-        right_on=['Team', 'Year'],
-        how='left'
-    )
-    merged.to_csv("Data/merged_data.csv", index=False)
-    print("Merged data saved")
+    kenpom_teams = combined_kenpom_data['Team'].unique()
+    sports_reference_teams = combined_sports_reference_data['School'].unique()
+    missing_kenpom = set(sports_reference_teams) - set(kenpom_teams)
+    if missing_kenpom:
+        print("Unmatched kenpom teams:\n")
+        for team in missing_kenpom:
+            print(f"{team}\n")
+        print("Unmatched sports reference teams:\n")
+        for team in (set(sports_reference_teams) - set(kenpom_teams)):
+            print(f"{team}\n")
+        print("Please fix matching before joining datasets")
+    else:
+        print("All teams matched")
+        print("Joining datasets")
+        merged = pd.merge(
+            combined_sports_reference_data,
+            combined_kenpom_data,
+            left_on=['School', 'Year'],
+            right_on=['Team', 'Year'],
+            how='left'
+        )
+        merged.to_csv("Data/merged_data.csv", index=False)
+        print("Merged data saved")
