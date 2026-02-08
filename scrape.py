@@ -151,7 +151,16 @@ if __name__ == "__main__":
         combined_sports_reference_data = pd.concat([combined_sports_reference_data, df_sp], ignore_index=True)
         df_kp = scrape_kenpom_year(year)
         combined_kenpom_data = pd.concat([combined_kenpom_data, df_kp], ignore_index=True)
-        sleep(1)
+        sleep(2)
+
+    team_years_sp = (
+        combined_sports_reference_data[['School', 'Year']]
+        .dropna()
+        .drop_duplicates()
+        .reset_index(drop=True)
+    )
+
+    team_years_sp.to_csv("Data/team_years_sports_reference.csv", index=False)
 
     combined_sports_reference_data.to_csv("Data/sports_reference_data.csv", index=False)
     combined_kenpom_data.to_csv("Data/kenpom_data.csv", index=False)
