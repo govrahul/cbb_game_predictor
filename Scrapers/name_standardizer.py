@@ -62,10 +62,12 @@ def normalize_team_name(name: str) -> str:
 KENPOM_TO_SPORTSREF = {
     "Albany": "Albany (NY)",
     "Arkansas Pine Bluff": "Arkansas-Pine Bluff",
+    "Birmingham Southern": "Birmingham-Southern",
     "BYU": "Brigham Young",
     "Bethune Cookman": "Bethune-Cookman",
     "CSUN": "Cal State Northridge",
     "Cal Baptist": "California Baptist",
+    "Centenary": "Centenary (LA)",
     "Central Connecticut": "Central Connecticut State",
     "Charleston": "College of Charleston",
     "FIU": "Florida International",
@@ -93,6 +95,8 @@ KENPOM_TO_SPORTSREF = {
     "SMU": "Southern Methodist",
     "Saint Bonaventure": "St. Bonaventure",
     "Saint Francis": "Saint Francis (PA)",
+    "Saint Francis New York": "St. Francis (NY)",
+    "Saint Francis Pennsylvania": "Saint Francis (PA)",
     "Saint John's": "St. John's (NY)",
     "Saint Mary's": "Saint Mary's (CA)",
     "Saint Thomas": "St. Thomas",
@@ -109,4 +113,5 @@ KENPOM_TO_SPORTSREF = {
     "USC Upstate": "South Carolina Upstate",
     "UT Rio Grande Valley": "Texas-Rio Grande Valley",
     "VCU": "Virginia Commonwealth",
+    "Winston Salem State": "Winston-Salem"
 }
