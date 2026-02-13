@@ -64,12 +64,17 @@ GAME_TO_COMBINED = {
 
 if __name__ == "__main__":
     combined = pd.read_csv("Data/combined_data.csv")
-    games = pd.read_parquet("Data/2023-2024Season.parquet", 
-                            columns=['Home_team', 'Home_score', 'Away_team', 'Away_score'])
+    games = pd.read_csv("Data/combined_games.csv")
+
+    games = games[~games['Home_team'].str.contains('TBA')]
 
     games['Home_team'] = games['Home_team'].apply(name_standardizer.normalize_team_name)
     games['Home_team'] = games['Home_team'].replace(name_standardizer.KENPOM_TO_SPORTSREF)
     games['Home_team'] = games['Home_team'].replace(GAME_TO_COMBINED)
+
+    games['Away_team'] = games['Away_team'].apply(name_standardizer.normalize_team_name)
+    games['Away_team'] = games['Away_team'].replace(name_standardizer.KENPOM_TO_SPORTSREF)
+    games['Away_team'] = games['Away_team'].replace(GAME_TO_COMBINED)
 
     combined_teams = set(combined['School'])
     game_teams = set(games['Home_team'])
@@ -77,6 +82,8 @@ if __name__ == "__main__":
     missing_combined = combined_teams - game_teams
     missing_game = game_teams - combined_teams
 
+    # Some are missing because of exhibition games or other random matchups that aren't D1
+    # All games containing these teams can be dropped
     print("Missing combined teams:")
     print(len(missing_combined))
     for team in sorted(missing_combined):
@@ -86,3 +93,62 @@ if __name__ == "__main__":
     print(len(missing_game))
     for team in sorted(missing_game):
         print(team)
+
+    games = games[
+        ~games['Home_team'].isin(missing_game) &
+        ~games['Away_team'].isin(missing_game)
+    ]
+
+    stats_cols = [
+        "NetRtg",
+        "ORtg",
+        "DRtg",
+        "AdjT",
+        "Luck",
+        "SOS_NetRtg",
+        "Opp_ORtg",
+        "Opp_DRtg",
+        "NCSOSNetRtg"
+    ]
+
+    team_stats = combined[["Year", "School"] + stats_cols]
+
+    home_stats = team_stats.copy()
+    home_stats = home_stats.rename(
+        columns={col: f"Home_{col}" for col in stats_cols}
+    )
+
+    games = games.merge(
+        home_stats,
+        left_on=["Year", "Home_team"],
+        right_on=["Year", "School"],
+        how="left"
+    ).drop(columns=["School"])
+
+    away_stats = team_stats.copy()
+    away_stats = away_stats.rename(
+        columns={col: f"Away_{col}" for col in stats_cols}
+    )
+
+    games = games.merge(
+        away_stats,
+        left_on=["Year", "Away_team"],
+        right_on=["Year", "School"],
+        how="left"
+    ).drop(columns=["School"])
+
+    final_cols = (
+        ["Year",
+        "Home_team", "Home_score"] +
+        [f"Home_{col}" for col in stats_cols] +
+        ["Away_team", "Away_score"] +
+        [f"Away_{col}" for col in stats_cols]
+    )
+
+    games_model = games[final_cols]
+    pd.set_option('display.max_columns', None)
+    games_model.dropna(inplace=True)
+    games_model['Result'] = games_model['Home_score'] > games_model['Away_score']
+    print(games_model.head())
+    
+    games_model.to_csv("Data/combined_game_stats.csv")
