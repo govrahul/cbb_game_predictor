@@ -34,6 +34,16 @@ def make_prediction(model, team1, team2):
 df = pd.read_csv("Data/model_stats.csv")
 df = df[["NetRtg_diff","ORtg_diff","DRtg_diff","Luck_diff","SOS_NetRtg_diff","Result"]]
 
+# Adding flipped data so the model does not always predict team 1 wins
+# Accuracy increased by 1%, AUC increased by 2%
+df_flipped = df.copy()
+for col in df.columns[:-1]:
+    df_flipped[col] = -df_flipped[col]
+df_flipped["Result"] = 1 - df_flipped["Result"]
+df = pd.concat([df, df_flipped], ignore_index=True)
+
+df.to_csv("Data/training_data.csv", index=False)
+
 X = df.drop("Result", axis=1)
 y = df["Result"]
 
@@ -55,5 +65,5 @@ model.feature_names = X.columns.tolist()
 with open("Models/log_reg.pkl", "wb") as f:
     pickle.dump(model, f)
 
-result = make_prediction(model, "Michigan", "Michigan St.")
+result = make_prediction(model, "Michigan St.", "Michigan")
 print(result)
