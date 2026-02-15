@@ -10,3 +10,5 @@ scikit-learn
 pickle
 keras
 torch
+tqdm
+streamlit
