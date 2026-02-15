@@ -6,3 +6,7 @@ lxml
 pyarrow
 matplotlib
 seaborn
+scikit-learn
+pickle
+keras
+torch
