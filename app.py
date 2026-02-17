@@ -3,7 +3,7 @@ import streamlit as st
 from make_predictions import make_predictions
 
 st.set_page_config(
-    page_title="March Madness Predictor",
+    page_title="College Basketball Game Predictor",
     page_icon="🏀",
     layout="wide"
 )
@@ -69,11 +69,17 @@ else:
     st.warning("Toss-Up Game")
 
 # Dual-sided probability bar
+fav1 = p1 > p2
+fav2 = p2 > p1
+
+color1 = "#4CAF50" if fav1 else "#E74C3C"
+color2 = "#4CAF50" if fav2 else "#E74C3C"
+
 st.markdown(
     f"""
     <div style="display:flex; width:100%; height:35px; border-radius:10px; overflow:hidden; margin-top:20px;">
-        <div style="width:{p1*100}%; background-color:#1f77b4;"></div>
-        <div style="width:{p2*100}%; background-color:#d62728;"></div>
+        <div style="width:{p1*100}%; background-color:{color1};"></div>
+        <div style="width:{p2*100}%; background-color:{color2};"></div>
     </div>
     <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:5px;">
         <span>{team1} {p1:.1%}</span>
