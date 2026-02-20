@@ -5,7 +5,7 @@ import sklearn.metrics
 import pickle
 import numpy as np
 
-def make_prediction(model, team1, team2):
+def make_prediction(model, team1, team2, neutral=False):
     data = pd.read_csv("Data/kenpom_stats.csv")
     data = data[data['Year'] == 2026]
 
@@ -21,6 +21,10 @@ def make_prediction(model, team1, team2):
     team2_stats = team2_stats.astype(float)
     
     diff = team1_stats - team2_stats
+    if not neutral:
+        diff = np.append(diff, 1)
+    else:
+        diff = np.append(diff, 0)
     X = pd.DataFrame([diff], columns=model.feature_names)
     proba = model.predict_proba(X)[0]
 
@@ -31,18 +35,20 @@ def make_prediction(model, team1, team2):
         "team2_win_prob": proba[0]
     }
 
-df = pd.read_csv("Data/model_stats.csv")
-df = df[["NetRtg_diff","ORtg_diff","DRtg_diff","Luck_diff","SOS_NetRtg_diff","Result"]]
+df = pd.read_csv("Data/model_stats_with_neutral.csv")
+df["Home_Advantage"] = (~df["Neutral"]).astype(int)
+df = df[["NetRtg_diff","ORtg_diff","DRtg_diff","Luck_diff","SOS_NetRtg_diff","Home_Advantage","Result"]]
 
 # Adding flipped data so the model does not always predict team 1 wins
 # Accuracy increased by 1%, AUC increased by 2%
 df_flipped = df.copy()
 for col in df.columns[:-1]:
-    df_flipped[col] = -df_flipped[col]
+    if col != "Home_Advantage":
+        df_flipped[col] = -df_flipped[col]
 df_flipped["Result"] = 1 - df_flipped["Result"]
 df = pd.concat([df, df_flipped], ignore_index=True)
 
-df.to_csv("Data/training_data.csv", index=False)
+df.to_csv("Data/training_data_home_court_advantage.csv", index=False)
 
 X = df.drop("Result", axis=1)
 y = df["Result"]
@@ -62,7 +68,7 @@ print(f"AUC: {auc:.2f}") # 0.83, strong performance
 
 model.feature_names = X.columns.tolist()
 
-with open("Models/log_reg.pkl", "wb") as f:
+with open("Models/log_reg_home_court_advantage.pkl", "wb") as f:
     pickle.dump(model, f)
 
 result = make_prediction(model, "Michigan St.", "Michigan")
