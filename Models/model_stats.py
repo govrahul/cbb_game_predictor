@@ -2,7 +2,7 @@ import pandas as pd
 
 pd.set_option('display.max_columns', None)
 
-df = pd.read_csv("Data/combined_game_stats.csv")
+df = pd.read_csv("Data/combined_game_stats_with_neutral.csv")
 
 home_cols = [col for col in df.columns if col.startswith("Home_")
              and pd.api.types.is_numeric_dtype(df[col])]
@@ -23,6 +23,7 @@ model_stats = df[
         "Home_score",
         "Away_team",
         "Away_score",
+        "Neutral",
         "NetRtg_diff",
         "ORtg_diff",
         "DRtg_diff",
@@ -34,4 +35,4 @@ model_stats = df[
 ]
 
 print(model_stats.head())
-model_stats.to_csv("Data/model_stats.csv")
+model_stats.to_csv("Data/model_stats_with_neutral.csv")
