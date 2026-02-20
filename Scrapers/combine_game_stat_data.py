@@ -64,7 +64,7 @@ GAME_TO_COMBINED = {
 
 if __name__ == "__main__":
     combined = pd.read_csv("Data/combined_data.csv")
-    games = pd.read_csv("Data/combined_games.csv")
+    games = pd.read_csv("Data/combined_games_with_neutral.csv")
 
     games = games[~games['Home_team'].str.contains('TBA')]
 
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     ).drop(columns=["School"])
 
     final_cols = (
-        ["Year",
+        ["Year", "Neutral",
         "Home_team", "Home_score"] +
         [f"Home_{col}" for col in stats_cols] +
         ["Away_team", "Away_score"] +
@@ -151,4 +151,4 @@ if __name__ == "__main__":
     games_model['Result'] = games_model['Home_score'] > games_model['Away_score']
     print(games_model.head())
     
-    games_model.to_csv("Data/combined_game_stats.csv")
+    games_model.to_csv("Data/combined_game_stats_with_neutral.csv")
