@@ -22,7 +22,7 @@ class MarchMadnessNN(nn.Module):
         return self.layers(x)
     
 def load_data():
-    df = pd.read_csv("Data/training_data.csv")
+    df = pd.read_csv("Data/training_data_home_court_advantage.csv")
     X = df.drop("Result", axis=1)
     y = df["Result"]
 
@@ -158,5 +158,5 @@ if __name__ == "__main__":
 
     print(f"Test AUC={test_auc:.4f}, Test Acc={test_acc:.4f}") # AUC: .84, Acc: .75
 
-    with open("Models/nn_model.pth", "wb") as f:
+    with open("Models/nn_model_home_court_advantage.pth", "wb") as f:
         torch.save(model.state_dict(), f)
