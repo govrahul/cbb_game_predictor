@@ -3,7 +3,7 @@ requests
 pandas
 numpy
 lxml
-pyarrow
+pyarrow<15
 matplotlib
 seaborn
 scikit-learn
