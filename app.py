@@ -153,6 +153,9 @@ with tab1:
         columns=["Metric", f"Team 1: {team1}", f"Team 2: {team2}"]
     )
 
+    for col in breakdown.select_dtypes(include="object"):
+        breakdown[col] = breakdown[col].astype(str)
+
     st.dataframe(breakdown, use_container_width=True)
 
 with tab2:
