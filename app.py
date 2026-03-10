@@ -1,4 +1,5 @@
 import pandas as pd
+import pickle
 import streamlit as st
 from make_predictions import make_predictions
 
@@ -8,8 +9,19 @@ st.set_page_config(
     layout="wide"
 )
 
-data = pd.read_csv("Data/kenpom_stats.csv")
-data = data[data['Year'] == 2026]
+# cache model and data
+@st.cache_resource
+def load_model():
+    model = pickle.load(open('Models/log_reg.pkl', 'rb'))
+    return model
+
+@st.cache_data
+def load_data():
+    data = pd.read_csv("Data/KenPom Data - 2026.csv")
+    return data
+
+model = load_model()
+data = load_data()
 teams = sorted(data['Team'].unique())
 
 st.title("NCAA Men's Basketball Win Probability Predictor")
@@ -38,7 +50,7 @@ with col2:
 
 
 # Get prediction
-result = make_predictions(model='logreg', team1=team1, team2=team2)
+result = make_predictions(model=model, team1=team1, team2=team2, data=data)
 p1 = result["team1_win_prob"]
 p2 = result["team2_win_prob"]
 

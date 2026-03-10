@@ -1,4 +1,9 @@
 from predict_bracket import predict_bracket, simulate_bracket
+import pickle
+import pandas as pd
+
+model = pickle.load(open('Models/log_reg.pkl', 'rb'))
+data = pd.read_csv("Data/KenPom Data - 2026.csv")
 
 if __name__ == "__main__":
     b10_bracket = [
@@ -29,9 +34,9 @@ if __name__ == "__main__":
             ("Michigan St.", None)
         ]
     ]
-    champ = predict_bracket(b10_bracket)
+    champ = predict_bracket(b10_bracket, model, data)
     print(f"Predicted Big 10 Champion: {champ}")
-    probs = simulate_bracket(b10_bracket)
+    probs = simulate_bracket(b10_bracket, model, data)
 
     acc_bracket = [
         [
@@ -52,9 +57,9 @@ if __name__ == "__main__":
             ("North Carolina", None)
         ]
     ]
-    champ = predict_bracket(acc_bracket)
+    champ = predict_bracket(acc_bracket, model, data)
     print(f"Predicted ACC Champion: {champ}")
-    probs = simulate_bracket(acc_bracket)
+    probs = simulate_bracket(acc_bracket, model, data)
 
     b12_bracket = [
         [
@@ -76,9 +81,9 @@ if __name__ == "__main__":
             ("Kansas", None)
         ]
     ]
-    champ = predict_bracket(b12_bracket)
+    champ = predict_bracket(b12_bracket, model, data)
     print(f"Predicted Big 12 Champion: {champ}")
-    probs = simulate_bracket(b12_bracket)
+    probs = simulate_bracket(b12_bracket, model, data)
 
     sec_bracket = [
         [
@@ -100,7 +105,7 @@ if __name__ == "__main__":
             ("Arkansas", None)
         ]
     ]
-    champ = predict_bracket(sec_bracket)
+    champ = predict_bracket(sec_bracket, model, data)
     print(f"Predicted SEC Champion: {champ}")
-    probs = simulate_bracket(sec_bracket)
+    probs = simulate_bracket(sec_bracket, model, data)
 
