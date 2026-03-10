@@ -132,8 +132,8 @@ with tab1:
     rows = []
 
     for feat, label in zip(features, friendly_names):
-        v1 = team1_stats[feat]
-        v2 = team2_stats[feat]
+        v1 = pd.to_numeric(team1_stats[feat], errors='coerce')
+        v2 = pd.to_numeric(team2_stats[feat], errors='coerce')
 
         # Determine which team is better in that metric
         if feat == "DRtg": # For devensive efficiency, lower is better
@@ -143,8 +143,8 @@ with tab1:
             team1_better = v1 > v2
             team2_better = v2 > v1
 
-        v1_display = f"{v1:.2f}" if team1_better else f"{v1:.2f}"
-        v2_display = f"{v2:.2f}" if team2_better else f"{v2:.2f}"
+        v1_display = f"{v1:.2f} ✓" if team1_better else f"{v1:.2f}"
+        v2_display = f"{v2:.2f} ✓" if team2_better else f"{v2:.2f}"
 
         rows.append([label, v1_display, v2_display])
 
