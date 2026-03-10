@@ -143,14 +143,13 @@ with tab1:
             team1_better = v1 > v2
             team2_better = v2 > v1
 
-        v1_display = f"{v1:.2f} ✓" if team1_better else f"{v1:.2f}"
-        v2_display = f"{v2:.2f} ✓" if team2_better else f"{v2:.2f}"
+        advantage = f'{team1}' if team1_better else f'{team2}'
 
-        rows.append([label, v1_display, v2_display])
+        rows.append([label, v1, v2, advantage])
 
     breakdown = pd.DataFrame(
         rows,
-        columns=["Metric", f"Team 1: {team1}", f"Team 2: {team2}"]
+        columns=["Metric", f"Team 1: {team1}", f"Team 2: {team2}", "Advantage"]
     )
 
     for col in breakdown.select_dtypes(include="object"):
