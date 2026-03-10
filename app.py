@@ -132,8 +132,8 @@ with tab1:
     rows = []
 
     for feat, label in zip(features, friendly_names):
-        v1 = pd.to_numeric(team1_stats[feat], errors='coerce')
-        v2 = pd.to_numeric(team2_stats[feat], errors='coerce')
+        v1 = team1_stats[feat]
+        v2 = team2_stats[feat]
 
         # Determine which team is better in that metric
         if feat == "DRtg": # For devensive efficiency, lower is better
@@ -154,7 +154,7 @@ with tab1:
     )
 
     for col in breakdown.select_dtypes(include="object"):
-        breakdown[col] = breakdown[col].astype(str)
+        breakdown[col] = breakdown[col].astype(str).str.slice(0, 50)
 
     st.dataframe(breakdown, use_container_width=True)
 
