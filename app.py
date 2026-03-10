@@ -152,7 +152,9 @@ with tab1:
         columns=["Metric", f"Team 1: {team1}", f"Team 2: {team2}", "Advantage"]
     )
 
-    breakdown = breakdown.convert_dtypes().astype(str)
+    for c in breakdown.columns:
+        if breakdown[c].dtype == 'string[pyarrow, large_utf8]':
+            breakdown[c] = breakdown[c].astype(str)
 
     st.dataframe(breakdown, use_container_width=True)
 
