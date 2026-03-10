@@ -92,7 +92,7 @@ def predict_bracket(bracket, model, data, simulate=False, verbose=True):
 
     return champion, round_winners
 
-def simulate_bracket(bracket, model, data, nsim=1000, verbose=True, progress_bar=None):
+def simulate_bracket(bracket, model, data, nsim=500, verbose=True, progress_bar=None):
     round_counts = defaultdict(lambda: defaultdict(int))
     results = Counter()
 
