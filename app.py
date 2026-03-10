@@ -2,6 +2,9 @@ import pandas as pd
 import pickle
 import streamlit as st
 from make_predictions import make_predictions
+from predict_bracket import simulate_bracket
+from brackets import BIG10_BRACKET, ACC_BRACKET, BIG12_BRACKET, SEC_BRACKET
+import altair as alt
 
 st.set_page_config(
     page_title="College Basketball Game Predictor",
@@ -154,7 +157,39 @@ with tab1:
 
 with tab2:
     st.title("Tournament Simulator")
-    st.info("Coming soon!")
+    tournament = st.selectbox(
+        "Select Tournament",
+        ["Big 10", "ACC", "Big 12", "SEC"]
+    )
+    tournament = tournament.replace(" ", "").upper()
+    bracket = globals().get(f"{tournament}_BRACKET")
+
+    if st.button("Simulate Tournament"):
+        progress_bar = st.progress(0)
+        sorted_probs, round_probs = simulate_bracket(bracket, model, data, progress_bar=progress_bar)
+
+        st.subheader("Champion Probabilities")
+        df = pd.DataFrame(
+            sorted_probs.items(), 
+            columns=["Team", "Championship Probability"]
+        )
+        chart = alt.Chart(df).mark_bar().encode(
+            x="Championship Probability:Q",
+            y=alt.Y("Team:N", sort="-x")
+        )
+        st.altair_chart(chart, width='stretch')
+        favorite = df.iloc[0]
+
+        st.subheader("Tournament Favorite")
+        st.markdown(
+            f"""
+            <div style="text-align:center; padding:20px;">
+                <h2 style="margin-bottom:10px;">🏆 {favorite['Team']} favored to win</h2>
+                <h3>Championship Probability: {favorite['Championship Probability']:.1%}</h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 st.markdown("---")
 st.caption("Developed by: Rahul Govil")
