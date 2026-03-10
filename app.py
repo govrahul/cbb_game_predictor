@@ -179,7 +179,7 @@ with tab2:
             x="Championship Probability:Q",
             y=alt.Y("Team:N", sort="-x")
         )
-        st.altair_chart(chart, width='stretch')
+        st.altair_chart(chart, use_container_width=True)
         favorite = df.iloc[0]
 
         st.subheader("Tournament Favorite")
