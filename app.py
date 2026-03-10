@@ -153,7 +153,7 @@ with tab1:
         columns=["Metric", f"Team 1: {team1}", f"Team 2: {team2}"]
     )
 
-    st.dataframe(breakdown, width='stretch', hide_index=True)
+    st.dataframe(breakdown, width='stretch')
 
 with tab2:
     st.title("Tournament Simulator")
