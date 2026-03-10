@@ -1,20 +1,28 @@
 import make_predictions
+import random
+from collections import Counter
+from tqdm import tqdm
 
-def predict_game(team1, team2, model):
+def predict_game(team1, team2, model, simulate=False):
     if team1 is None:
         return team2
     if team2 is None:
         return team1
     
     result = make_predictions.make_predictions(model, team1, team2)
-    return team1 if result["team1_win_prob"] > result["team2_win_prob"] else team2
+    p = result["team1_win_prob"]
+    if simulate:
+        return team1 if random.random() < p else team2
+    else:
+        return team1 if result["team1_win_prob"] > result["team2_win_prob"] else team2
 
-def advance_round(matchups, model):
+def advance_round(matchups, model, simulate=False, verbose=True):
     winners = []
 
     for team1, team2 in matchups:
-        winner = predict_game(team1, team2, model)
-        print(f"{team1} vs {team2} -> Predicted winner: {winner}\n")
+        winner = predict_game(team1, team2, model, simulate)
+        if verbose:
+            print(f"{team1} vs {team2} -> Predicted winner: {winner}\n")
         winners.append(winner)
 
     return winners
@@ -44,50 +52,83 @@ def build_next_round(winners):
 
     return next_round
 
-def predict_bracket(bracket, model='logreg'):
+def predict_bracket(bracket, model='logreg', simulate=False, verbose=True):
     winners = None
     round_num = 1
 
     # Run the manually defined rounds first
     for round_matchups in bracket:
 
-        print(f"Round {round_num}:\n")
+        if verbose:
+            print(f"Round {round_num}:\n")
 
         if winners is not None:
             round_matchups = fill_byes(round_matchups, winners)
 
-        winners = advance_round(round_matchups, model)
+        winners = advance_round(round_matchups, model, simulate, verbose)
 
         round_num += 1
 
     # Automatically generate remaining rounds
     while len(winners) > 1:
 
-        print(f"Round {round_num}:\n")
+        if verbose:
+            print(f"Round {round_num}:\n")
 
         next_round = build_next_round(winners)
 
-        winners = advance_round(next_round, model)
+        winners = advance_round(next_round, model, simulate, verbose)
 
         round_num += 1
 
     champion = winners[0]
     return champion
 
+def simulate_bracket(bracket, model='logreg', nsim=1000, verbose=True):
+    results = Counter()
+
+    for _ in tqdm(range(nsim), desc="Simulating brackets"):
+        champ = predict_bracket(bracket, model, simulate=True, verbose=False)
+        results[champ] += 1
+
+    probs = {team: count/nsim for team, count in results.items()}
+
+    if verbose:
+        for team, prob in sorted(probs.items(), key=lambda x: -x[1]):
+            print(f"{team}: {prob:.2%}")
+
+    return probs
+
 if __name__ == "__main__":
     bracket = [
         # round 1
         [
-            ("Prairie View A&M", "Alcorn St."),
-            ("Jackson St.", "Grambling St.")
+            ("Maryland", "Oregon"),
+            ("Penn St.", "Northwestern")
         ],
         # round 2
         [
-            ("Bethune Cookman", None),
-            ("Texas Southern", "Alabama A&M"),
-            ("Southern", "Arkansas Pine Bluff"),
-            ("Florida A&M", None)
+            ("Iowa", None),
+            ("Washington", "USC"),
+            ("Indiana", None),
+            ("Minnesota", "Rutgers")
+        ],
+        # round 3
+        [
+            ("Ohio St.", None),
+            ("Wisconsin", None),
+            ("Purdue", None),
+            ("UCLA", None)
+        ],
+        # round 4
+        [
+            ("Michigan", None),
+            ("Illinois", None),
+            ("Nebraska", None),
+            ("Michigan St.", None)
         ]
     ]
     champ = predict_bracket(bracket)
     print(f"Predicted Champion: {champ}")
+
+    probs = simulate_bracket(bracket)
