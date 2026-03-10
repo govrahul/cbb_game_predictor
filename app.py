@@ -152,8 +152,7 @@ with tab1:
         columns=["Metric", f"Team 1: {team1}", f"Team 2: {team2}", "Advantage"]
     )
 
-    for col in breakdown.select_dtypes(include="object"):
-        breakdown[col] = breakdown[col].astype(str).str.slice(0, 50)
+    breakdown = breakdown.convert_dtypes().astype(str)
 
     st.dataframe(breakdown, use_container_width=True)
 
@@ -175,7 +174,7 @@ with tab2:
             sorted_probs.items(), 
             columns=["Team", "Championship Probability"]
         )
-        chart = alt.Chart(df).mark_bar().encode(
+        chart = alt.Chart(df.to_dict("records")).mark_bar().encode(
             x="Championship Probability:Q",
             y=alt.Y("Team:N", sort="-x")
         )
