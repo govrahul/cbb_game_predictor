@@ -11,5 +11,5 @@ keras
 torch
 tqdm
 streamlit
-altair
+altair<5
 plotly
