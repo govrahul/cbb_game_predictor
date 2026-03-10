@@ -1,7 +1,7 @@
 beautifulsoup4
 requests
 pandas
-numpy
+numpy<2
 lxml
 pyarrow<15
 matplotlib
